@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>货币战争 · 角色资料库</title>
+<style>
+  :root {
+    --bg: #f5f4fc; --card: #fff; --ink: #2b2745; --soft: #6d6890; --faint: #9a95b5;
+    --primary: #6d54d6; --primary-2: #8b6cf0; --soft-bg: #efeaff; --line: #e9e6f5;
+    --shadow: 0 6px 22px rgba(88,66,160,.09); --shadow-h: 0 12px 32px rgba(88,66,160,.16);
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; background:linear-gradient(135deg,#eef0ff,#f7f3ff 45%,#fdf4fb); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; font-size:14px; }
+  .wrap { max-width:1360px; margin:0 auto; padding:28px 24px 64px; }
+  h1 { margin:0 0 6px; font-size:26px; background:linear-gradient(100deg,#5b43c4,#8b5cf6 55%,#c026d3);
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub { color:var(--soft); font-size:13px; margin-bottom:18px; }
+  .notice { background:#fff8e8; border:1px solid #fde3a7; border-left:4px solid #f59e0b; border-radius:10px;
+    padding:11px 14px; font-size:12.5px; color:#7c4a03; margin-bottom:18px; line-height:1.7; }
+  .notice b { color:#b45309; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px;
+    box-shadow:var(--shadow); margin-bottom:20px; }
+  .row { display:flex; flex-wrap:wrap; gap:9px; align-items:center; margin-bottom:9px; }
+  .row:last-child { margin-bottom:0; }
+  .row .cap { color:var(--faint); font-size:11px; min-width:48px; }
+  .seg { display:inline-flex; background:#f3f1fb; border-radius:8px; padding:3px; }
+  .seg button { border:0; background:transparent; color:var(--soft); cursor:pointer; padding:6px 14px;
+    border-radius:6px; font-size:12px; font-weight:600; }
+  .seg button.on { background:#fff; color:var(--primary); box-shadow:0 1px 5px rgba(88,66,160,.15); }
+  .chip { border:1px solid var(--line); background:#fff; color:var(--soft); cursor:pointer;
+    padding:5px 10px; border-radius:16px; font-size:11.5px; transition:.12s; }
+  .chip:hover { border-color:var(--primary-2); color:var(--primary); }
+  .chip.on { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .search { flex:1; min-width:180px; border:1px solid var(--line); border-radius:9px; padding:8px 12px;
+    font-size:13px; outline:none; color:var(--ink); background:#fcfbff; }
+  .search:focus { border-color:var(--primary-2); box-shadow:0 0 0 3px var(--soft-bg); }
+  .btn { border:1px solid var(--line); background:#fff; color:var(--soft); padding:7px 12px; border-radius:8px;
+    cursor:pointer; font-size:11.5px; }
+  .btn:hover { border-color:var(--primary-2); color:var(--primary); }
+  .meta { color:var(--faint); font-size:12px; margin:2px 0 14px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(228px,1fr)); gap:12px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:13px;
+    box-shadow:var(--shadow); transition:.18s; }
+  .card:hover { box-shadow:var(--shadow-h); transform:translateY(-2px); }
+  .card.hidden { display:none; }
+  .top { display:flex; align-items:center; gap:10px; padding-bottom:9px; border-bottom:1px solid #f1eef8; }
+  .face { width:40px; height:40px; flex:0 0 40px; border-radius:10px; display:flex; align-items:center;
+    justify-content:center; font-size:17px; font-weight:700; color:#fff; background:linear-gradient(135deg,var(--primary-2),#c026d3); }
+  .nm { font-weight:700; font-size:14px; line-height:1.2; }
+  .ver { font-size:10.5px; color:var(--faint); margin-top:3px; }
+  .cost { margin-left:auto; text-align:center; flex:0 0 34px; }
+  .cost .n { font-size:18px; font-weight:800; color:var(--primary); line-height:1; }
+  .cost .u { font-size:9px; color:var(--faint); }
+  .line { display:flex; gap:5px; flex-wrap:wrap; margin-top:9px; align-items:center; }
+  .tag { font-size:10px; padding:2px 7px; border-radius:5px; border:1px solid; white-space:nowrap; }
+  .t-camp { background:#f3efff; color:#6d28d9; border-color:#e3d9fb; }
+  .t-style { background:#eaf4ff; color:#1d4ed8; border-color:#d3e5fd; }
+  .t-solo { background:#fff0f7; color:#be185d; border-color:#fbd4e8; }
+  .t-pos { background:#f3f4f6; color:#4b5563; border-color:#e5e7eb; }
+  .t-role { background:#ecfdf5; color:#047857; border-color:#c9f0dc; }
+  .t-expert { background:#fff7ed; color:#c2410c; border-color:#fed7aa; }
+  .empty { grid-column:1/-1; text-align:center; color:var(--faint); padding:48px; font-size:13px; }
+  .src { margin-top:24px; font-size:11px; color:var(--faint); line-height:1.8; }
+  .src a { color:var(--primary); text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>货币战争 · 角色资料库</h1>
+  <div class="sub">崩坏：星穹铁道 · 数据来源 BWiki 角色一览（货币），按费用 / 站位 / 羁绊 / 定位筛选</div>
+  <div class="notice">
+    <b>注意版本差异：</b>4.7 版本（2026-11-11 上线）推出新赛季「入画奇航」，<b>羁绊、费用、前后台定位、角色赋能全部重制</b>。
+    你之前截图里的清单属于旧赛季「零和博弈」。切换上方赛季可查看两版数据，做任务清单时请确认对应的是哪个赛季。
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <span class="cap">赛季</span>
+      <div class="seg" id="modeSeg"><button data-m="入画奇航" class="on">入画奇航（4.7 当前）</button><button data-m="零和博弈">零和博弈（旧赛季）</button></div>
+      <input class="search" id="search" placeholder="搜索角色名或羁绊…">
+    </div>
+    <div class="row"><span class="cap">费用</span><span id="fCost"></span></div>
+    <div class="row"><span class="cap">站位</span><span id="fPos"></span></div>
+    <div class="row"><span class="cap">定位</span><span id="fTag"></span></div>
+    <div class="row"><span class="cap">羁绊</span><span id="fBond"></span>
+      <button class="btn" id="clearBtn">清除筛选</button>
+    </div>
+  </div>
+
+  <div class="meta" id="meta"></div>
+  <div class="grid" id="grid"></div>
+
+  <div class="src">
+    数据来源：<a href="https://wiki.biligame.com/sr/?curid=25489" target="_blank">Bilibili 游戏 Wiki · 角色一览（货币）</a><br>
+    抓取时间：<span id="fetchTime"></span> · 本页为静态快照，游戏版本更新后需重新抓取。
+  </div>
+</div>
+
+<script>
+const DATA = {"modes":{"入画奇航":[{"name":"星神★阿哈","tag":"辅助","pos":"前","bonds":"欢愉, 幻乐之主","cost":"4, 5, 7","ver":"4.7","expert":"否"},{"name":"帕姆王","tag":"输出, 辅助","pos":"后","bonds":"开拓银轨","cost":"5","ver":"4.7","expert":"否"},{"name":"克拉拉","tag":"输出, 辅助","pos":"前后","bonds":"星间旅人, 反击, 机心巧匠","cost":"5","ver":"4.7","expert":"否"},{"name":"雪衣","tag":"输出, 辅助","pos":"前","bonds":"仙舟舰队, 击破","cost":"5","ver":"4.7","expert":"否"},{"name":"不死途","tag":"输出","pos":"后","bonds":"幻月游戏, 追击, 巡海游侠","cost":"5","ver":"4.2","expert":"否"},{"name":"丹恒•腾荒","tag":"护盾","pos":"后","bonds":"双龙吟","cost":"5","ver":"3.7","expert":"否"},{"name":"卡芙卡","tag":"输出, 辅助","pos":"前","bonds":"星核猎手, 持续伤害","cost":"5","ver":"3.7","expert":"否"},{"name":"白厄","tag":"输出, 辅助","pos":"前后","bonds":"黄金大饭店, 盗火行者","cost":"5","ver":"3.7","expert":"否"},{"name":"翡翠","tag":"输出, 辅助","pos":"后","bonds":"千星商会, 群攻, 黑市主理人","cost":"5","ver":"3.7","expert":"否"},{"name":"丹恒•饮月","tag":"输出","pos":"前","bonds":"开拓银轨, 云上五骁, 双龙吟","cost":"5","ver":"3.7","expert":"否"},{"name":"阿格莱雅","tag":"输出","pos":"前","bonds":"奇兽花园, 连击","cost":"5","ver":"3.7","expert":"否"},{"name":"希露瓦","tag":"输出","pos":"前","bonds":"少女乐队, 持续伤害","cost":"4","ver":"4.7","expert":"否"},{"name":"寒鸦","tag":"辅助","pos":"后","bonds":"仙舟舰队, 连击","cost":"4","ver":"4.7","expert":"否"},{"name":"砂金•戏浪","tag":"输出","pos":"前","bonds":"千星商会, 欢愉","cost":"4","ver":"4.7","expert":"否"},{"name":"千冶•刃","tag":"输出, 辅助","pos":"前后","bonds":"幻月游戏, 星核猎手, 群攻","cost":"4","ver":"4.4","expert":"否"},{"name":"姬子•启行","tag":"输出","pos":"前","bonds":"开拓银轨, 能量","cost":"4","ver":"4.4","expert":"否"},{"name":"砂金","tag":"护盾, 输出","pos":"前后","bonds":"星间旅人, 追击, 守护","cost":"4","ver":"3.7","expert":"否"},{"name":"黄泉","tag":"输出","pos":"前","bonds":"梦境交织, 群攻","cost":"4","ver":"3.7","expert":"否"},{"name":"刃","tag":"输出","pos":"前后","bonds":"云上五骁, 反击","cost":"4","ver":"3.7","expert":"否"},{"name":"缇宝","tag":"辅助, 输出","pos":"前后","bonds":"小小巨人, 追击","cost":"4","ver":"3.7","expert":"否"},{"name":"昔涟","tag":"辅助","pos":"前","bonds":"黄金大饭店, 召唤","cost":"4","ver":"3.7","expert":"否"},{"name":"藿藿","tag":"治疗, 辅助","pos":"后","bonds":"小小巨人, 能量, 治疗","cost":"4","ver":"3.7","expert":"否"},{"name":"风堇","tag":"治疗, 输出","pos":"前后","bonds":"奇兽花园, 召唤, 治疗","cost":"4","ver":"3.7","expert":"否"},{"name":"开拓者•欢愉","tag":"辅助","pos":"前后","bonds":"开拓银轨, 星核猎手, 能量","cost":"3","ver":"4.2","expert":"否"},{"name":"银狼LV.999","tag":"输出","pos":"前","bonds":"幻月游戏, 星核猎手, 欢愉","cost":"3","ver":"4.2","expert":"否"},{"name":"爻光","tag":"辅助","pos":"后","bonds":"千星商会, 欢愉","cost":"3","ver":"4.0","expert":"否"},{"name":"大丽花","tag":"输出","pos":"前后","bonds":"梦境交织, 击破","cost":"3","ver":"4.0","expert":"否"},{"name":"罗刹","tag":"治疗, 辅助","pos":"前后","bonds":"星间旅人, 治疗","cost":"3","ver":"3.7","expert":"否"},{"name":"遐蝶","tag":"输出","pos":"前后","bonds":"黄金大饭店, 召唤","cost":"3","ver":"3.7","expert":"否"},{"name":"符玄","tag":"治疗, 辅助","pos":"后","bonds":"小小巨人, 反击, 守护","cost":"3","ver":"3.7","expert":"否"},{"name":"乱破","tag":"输出","pos":"后","bonds":"少女乐队, 击破","cost":"3","ver":"3.7","expert":"否"},{"name":"镜流","tag":"输出","pos":"前后","bonds":"云上五骁, 连击","cost":"3","ver":"3.7","expert":"否"},{"name":"椒丘","tag":"辅助, 输出","pos":"前","bonds":"仙舟舰队, 持续伤害","cost":"3","ver":"3.7","expert":"否"},{"name":"飞霄","tag":"输出","pos":"前","bonds":"仙舟舰队, 追击","cost":"3","ver":"3.7","expert":"否"},{"name":"赛飞儿","tag":"辅助","pos":"后","bonds":"奇兽花园, 群攻","cost":"3","ver":"3.7","expert":"否"},{"name":"白露","tag":"治疗","pos":"后","bonds":"云上五骁, 连击, 治疗","cost":"2","ver":"4.7","expert":"否"},{"name":"知更鸟•晴歌","tag":"辅助","pos":"前后","bonds":"千星商会, 召唤, 能量","cost":"2","ver":"4.7","expert":"否"},{"name":"绯英","tag":"输出","pos":"前后","bonds":"幻月游戏, 能量","cost":"2","ver":"4.2","expert":"否"},{"name":"大黑塔","tag":"输出","pos":"前","bonds":"星间旅人, 群攻","cost":"2","ver":"3.7","expert":"否"},{"name":"花火","tag":"辅助","pos":"前","bonds":"小小巨人, 梦境交织, 欢愉","cost":"2","ver":"3.7","expert":"否"},{"name":"流萤","tag":"输出","pos":"前","bonds":"星核猎手, 击破","cost":"2","ver":"3.7","expert":"否"},{"name":"海瑟音","tag":"输出","pos":"前后","bonds":"奇兽花园, 持续伤害","cost":"2","ver":"3.7","expert":"否"},{"name":"万敌","tag":"输出, 辅助","pos":"前后","bonds":"奇兽花园, 黄金大饭店, 反击","cost":"2","ver":"3.7","expert":"否"},{"name":"知更鸟","tag":"辅助","pos":"前","bonds":"少女乐队, 追击","cost":"2","ver":"3.7","expert":"否"},{"name":"星期日","tag":"辅助","pos":"前后","bonds":"幻月游戏, 开拓银轨, 连击","cost":"2","ver":"3.7","expert":"否"},{"name":"娜塔莎","tag":"治疗, 输出","pos":"后","bonds":"星间旅人, 持续伤害, 治疗","cost":"2","ver":"3.7","expert":"否"},{"name":"云璃","tag":"输出, 辅助","pos":"前后","bonds":"仙舟舰队, 反击","cost":"2","ver":"3.7","expert":"否"},{"name":"真珠","tag":"治疗, 辅助","pos":"后","bonds":"幻月游戏, 千星商会, 守护","cost":"1","ver":"4.7","expert":"否"},{"name":"三月七•巡猎","tag":"辅助, 输出","pos":"后","bonds":"开拓银轨, 追击","cost":"1","ver":"4.7","expert":"否"},{"name":"桂乃芬","tag":"辅助, 输出","pos":"前后","bonds":"仙舟舰队, 持续伤害","cost":"1","ver":"4.7","expert":"否"},{"name":"火花","tag":"输出","pos":"前后","bonds":"幻月游戏, 少女乐队, 欢愉","cost":"1","ver":"4.0","expert":"否"},{"name":"忘归人","tag":"辅助","pos":"前后","bonds":"星间旅人, 击破","cost":"1","ver":"3.7","expert":"否"},{"name":"景元","tag":"输出","pos":"前后","bonds":"云上五骁, 召唤","cost":"1","ver":"3.7","expert":"否"},{"name":"长夜月","tag":"输出, 辅助","pos":"前后","bonds":"奇兽花园, 梦境交织, 召唤","cost":"1","ver":"3.7","expert":"否"},{"name":"黑天鹅","tag":"输出, 辅助","pos":"后","bonds":"梦境交织, 持续伤害","cost":"1","ver":"3.7","expert":"否"},{"name":"灵砂","tag":"治疗, 辅助","pos":"前后","bonds":"仙舟舰队, 群攻, 治疗","cost":"1","ver":"3.7","expert":"否"},{"name":"那刻夏","tag":"输出","pos":"前","bonds":"奇兽花园, 连击","cost":"1","ver":"3.7","expert":"否"},{"name":"瓦尔特","tag":"输出, 辅助","pos":"前后","bonds":"开拓银轨, 群攻","cost":"1","ver":"3.7","expert":"否"},{"name":"波提欧","tag":"输出","pos":"前","bonds":"星间旅人, 击破","cost":"1","ver":"3.7","expert":"否"},{"name":"刻律德菈","tag":"辅助","pos":"后","bonds":"小小巨人, 连击","cost":"1","ver":"3.7","expert":"否"},{"name":"托帕&账账","tag":"输出, 辅助","pos":"前后","bonds":"千星商会, 追击","cost":"1","ver":"3.7","expert":"否"}],"零和博弈":[{"name":"银狼LV.999","tag":"输出","pos":"前","bonds":"星核猎手, 欢愉, 头号玩家","cost":"3, 4, 5","ver":"4.2","expert":"否"},{"name":"布洛妮娅","tag":"辅助, 输出","pos":"前","bonds":"贝洛伯格, 大守护者, 燃血","cost":"5","ver":"3.7","expert":"否"},{"name":"云璃","tag":"输出","pos":"后","bonds":"狼狩, 能量","cost":"5","ver":"3.7","expert":"否"},{"name":"景元","tag":"输出","pos":"前","bonds":"仙舟, 群攻","cost":"5","ver":"3.7","expert":"否"},{"name":"Archer","tag":"输出","pos":"前","bonds":"命运圣杯, 战技点, 魔术师","cost":"5","ver":"3.7","expert":"否"},{"name":"黑天鹅","tag":"输出, 辅助","pos":"后","bonds":"盛会之星, 持续伤害, 命运卜者","cost":"5","ver":"3.7","expert":"否"},{"name":"托帕&账账","tag":"输出, 辅助","pos":"后","bonds":"公司, 追击","cost":"5","ver":"3.7","expert":"否"},{"name":"流萤","tag":"输出","pos":"前","bonds":"星核猎手, 击破","cost":"5","ver":"3.7","expert":"否"},{"name":"昔涟","tag":"辅助, 输出","pos":"前","bonds":"昼之半神, 夜之半神, 挚爱之人","cost":"5","ver":"3.7","expert":"否"},{"name":"瓦尔特","tag":"输出, 辅助","pos":"前","bonds":"列车同行, 星间旅人, 减益","cost":"5","ver":"3.7","expert":"否"},{"name":"开拓者•欢愉","tag":"输出, 辅助","pos":"后","bonds":"列车同行, 能量, 欢愉","cost":"4","ver":"4.2","expert":"否"},{"name":"火花","tag":"输出","pos":"前","bonds":"星间旅人, 战技点, 欢愉","cost":"4","ver":"4.0","expert":"否"},{"name":"波提欧","tag":"输出","pos":"前","bonds":"巡海游侠, 击破","cost":"4","ver":"3.7","expert":"否"},{"name":"罗刹","tag":"治疗, 辅助","pos":"后","bonds":"星间旅人, 治疗","cost":"4","ver":"3.7","expert":"否"},{"name":"大黑塔","tag":"输出","pos":"前","bonds":"银河学者, 群攻","cost":"4","ver":"3.7","expert":"否"},{"name":"长夜月","tag":"输出, 辅助","pos":"前后","bonds":"夜之半神, 燃血","cost":"4","ver":"3.7","expert":"否"},{"name":"符玄","tag":"治疗, 辅助","pos":"后","bonds":"仙舟, 治疗, 量子同频","cost":"4","ver":"3.7","expert":"否"},{"name":"遐蝶","tag":"输出","pos":"前","bonds":"夜之半神, 燃血","cost":"4","ver":"3.7","expert":"否"},{"name":"彦卿","tag":"输出","pos":"后","bonds":"仙舟, 狼狩, 减益","cost":"4","ver":"3.7","expert":"否"},{"name":"海瑟音","tag":"输出","pos":"前","bonds":"昼之半神, 持续伤害","cost":"4","ver":"3.7","expert":"否"},{"name":"银狼","tag":"辅助, 输出","pos":"前后","bonds":"星核猎手, 量子同频","cost":"4","ver":"3.7","expert":"是"},{"name":"开拓者•记忆","tag":"辅助, 输出","pos":"前","bonds":"列车同行, 能量","cost":"4","ver":"3.7","expert":"否"},{"name":"知更鸟","tag":"辅助, 输出","pos":"后","bonds":"盛会之星, 追击","cost":"4","ver":"3.7","expert":"否"},{"name":"杰帕德","tag":"护盾, 输出","pos":"前","bonds":"贝洛伯格, 护盾","cost":"4","ver":"3.7","expert":"否"},{"name":"姬子•启行","tag":"输出","pos":"前","bonds":"列车同行, 领航员","cost":"3","ver":"4.4","expert":"否"},{"name":"姬子","tag":"输出","pos":"后","bonds":"列车同行, 击破","cost":"3","ver":"3.7","expert":"是"},{"name":"刻律德菈","tag":"辅助","pos":"前后","bonds":"夜之半神, 战技点","cost":"3","ver":"3.7","expert":"否"},{"name":"真理医生","tag":"输出","pos":"前","bonds":"银河学者, 星间旅人, 追击","cost":"3","ver":"3.7","expert":"否"},{"name":"Saber","tag":"输出","pos":"前后","bonds":"命运圣杯, 能量","cost":"3","ver":"3.7","expert":"否"},{"name":"黄泉","tag":"输出","pos":"前","bonds":"巡海游侠, 减益","cost":"3","ver":"3.7","expert":"否"},{"name":"希儿","tag":"输出","pos":"前","bonds":"贝洛伯格, 量子同频","cost":"3","ver":"3.7","expert":"否"},{"name":"白厄","tag":"输出","pos":"前","bonds":"救世主","cost":"3","ver":"3.7","expert":"否"},{"name":"镜流","tag":"输出","pos":"后","bonds":"狼狩, 燃血","cost":"3","ver":"3.7","expert":"否"},{"name":"那刻夏","tag":"输出, 辅助","pos":"后","bonds":"昼之半神, 群攻","cost":"3","ver":"3.7","expert":"否"},{"name":"娜塔莎","tag":"治疗","pos":"前后","bonds":"贝洛伯格, 治疗","cost":"3","ver":"3.7","expert":"否"},{"name":"星期日","tag":"辅助","pos":"前后","bonds":"列车同行, 盛会之星, 能量","cost":"3","ver":"3.7","expert":"否"},{"name":"忘归人","tag":"辅助, 输出","pos":"后","bonds":"仙舟, 击破","cost":"3","ver":"3.7","expert":"否"},{"name":"千冶•刃","tag":"输出","pos":"后","bonds":"星核猎手, 燃血, 减益","cost":"2","ver":"4.4","expert":"否"},{"name":"吉尔伽美什","tag":"输出","pos":"前后","bonds":"命运圣杯, 能量","cost":"2","ver":"4.4","expert":"否"},{"name":"绯英","tag":"输出","pos":"前后","bonds":"星间旅人, 欢愉","cost":"2","ver":"4.2","expert":"否"},{"name":"不死途","tag":"输出","pos":"前后","bonds":"巡海游侠, 追击","cost":"2","ver":"4.2","expert":"否"},{"name":"缇宝","tag":"辅助, 输出","pos":"前后","bonds":"昼之半神, 群攻, 量子同频","cost":"2","ver":"3.7","expert":"否"},{"name":"银枝","tag":"输出, 辅助","pos":"前后","bonds":"星间旅人, 群攻","cost":"2","ver":"3.7","expert":"否"},{"name":"卡芙卡","tag":"输出, 辅助","pos":"前后","bonds":"星核猎手, 持续伤害","cost":"2","ver":"3.7","expert":"否"},{"name":"风堇","tag":"治疗, 输出","pos":"前","bonds":"昼之半神, 治疗, 燃血","cost":"2","ver":"3.7","expert":"否"},{"name":"阮•梅","tag":"辅助","pos":"后","bonds":"银河学者, 击破","cost":"2","ver":"3.7","expert":"否"},{"name":"佩拉","tag":"辅助, 输出","pos":"后","bonds":"贝洛伯格, 减益","cost":"2","ver":"3.7","expert":"是"},{"name":"灵砂","tag":"治疗, 输出","pos":"前","bonds":"狼狩, 击破, 治疗","cost":"2","ver":"3.7","expert":"否"},{"name":"丹恒•腾荒","tag":"护盾","pos":"后","bonds":"夜之半神, 护盾","cost":"2","ver":"3.7","expert":"否"},{"name":"砂金","tag":"护盾, 输出","pos":"前","bonds":"公司, 追击, 护盾","cost":"2","ver":"3.7","expert":"否"},{"name":"丹恒•饮月","tag":"输出","pos":"前","bonds":"列车同行, 仙舟, 战技点","cost":"2","ver":"3.7","expert":"否"},{"name":"花火","tag":"辅助","pos":"后","bonds":"盛会之星, 量子同频, 战技点","cost":"2","ver":"3.7","expert":"否"},{"name":"远坂凛","tag":"输出","pos":"前后","bonds":"命运圣杯, 战技点","cost":"1","ver":"4.4","expert":"否"},{"name":"爻光","tag":"辅助","pos":"前后","bonds":"仙舟, 欢愉","cost":"1","ver":"4.0","expert":"否"},{"name":"大丽花","tag":"输出","pos":"前后","bonds":"盛会之星, 击破","cost":"1","ver":"4.0","expert":"否"},{"name":"藿藿","tag":"治疗, 辅助","pos":"前后","bonds":"仙舟, 能量, 治疗","cost":"1","ver":"3.7","expert":"否"},{"name":"刃","tag":"输出","pos":"后","bonds":"星核猎手, 燃血","cost":"1","ver":"3.7","expert":"是"},{"name":"艾丝妲","tag":"辅助","pos":"前","bonds":"银河学者, 持续伤害","cost":"1","ver":"3.7","expert":"否"},{"name":"赛飞儿","tag":"辅助","pos":"前","bonds":"夜之半神, 追击, 减益","cost":"1","ver":"3.7","expert":"否"},{"name":"飞霄","tag":"输出","pos":"前","bonds":"狼狩, 追击","cost":"1","ver":"3.7","expert":"否"},{"name":"貊泽","tag":"输出, 辅助","pos":"后","bonds":"狼狩, 追击","cost":"1","ver":"3.7","expert":"是"},{"name":"椒丘","tag":"治疗, 辅助","pos":"前","bonds":"狼狩, 减益, 持续伤害","cost":"1","ver":"3.7","expert":"否"},{"name":"黑塔","tag":"输出","pos":"前后","bonds":"银河学者, 群攻","cost":"1","ver":"3.7","expert":"否"},{"name":"万敌","tag":"输出","pos":"前后","bonds":"夜之半神, 燃血","cost":"1","ver":"3.7","expert":"否"},{"name":"加拉赫","tag":"治疗","pos":"前后","bonds":"盛会之星, 击破, 治疗","cost":"1","ver":"3.7","expert":"是"},{"name":"桑博","tag":"输出","pos":"前后","bonds":"贝洛伯格, 星间旅人, 持续伤害","cost":"1","ver":"3.7","expert":"是"},{"name":"翡翠","tag":"输出, 辅助","pos":"后","bonds":"公司, 群攻","cost":"1","ver":"3.7","expert":"否"},{"name":"青雀","tag":"输出","pos":"前","bonds":"仙舟, 战技点","cost":"1","ver":"3.7","expert":"是"},{"name":"乱破","tag":"输出","pos":"前","bonds":"巡海游侠, 击破","cost":"1","ver":"3.7","expert":"否"},{"name":"停云","tag":"辅助","pos":"后","bonds":"仙舟, 能量","cost":"1","ver":"3.7","expert":"是"},{"name":"三月七","tag":"护盾","pos":"后","bonds":"列车同行, 护盾","cost":"1","ver":"3.7","expert":"否"},{"name":"阿格莱雅","tag":"输出","pos":"前","bonds":"昼之半神, 能量","cost":"1","ver":"3.7","expert":"否"}]},"camp":["仙舟","狼狩","夜之半神","昼之半神","贝洛伯格","列车同行","银河学者","星间旅人","盛会之星","巡海游侠","星核猎手","公司","命运圣杯","幻月游戏","开拓银轨","仙舟舰队","云上五骁","千星商会","黄金大饭店","奇兽花园","少女乐队","梦境交织","小小巨人"],"style":["击破","追击","能量","群攻","燃血","减益","持续伤害","战技点","量子同频","治疗","护盾","欢愉","连击","反击","召唤","守护"],"solo":["命运卜者","大守护者","魔术师","挚爱之人","救世主","头号玩家","领航员","双龙吟","黑市主理人","盗火行者","幻乐之主","机心巧匠"],"fetchedAt":"2026-11-20T05:45:33.235Z"};
+let mode = '入画奇航';
+let kw = '', selCost = [], selPos = [], selTag = [], selBond = [];
+
+function esc(s) { return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+function uniq(arr) { return Array.from(new Set(arr)).filter(Boolean); }
+
+function bondClass(b) {
+  if (DATA.camp.indexOf(b) >= 0) return 't-camp';
+  if (DATA.style.indexOf(b) >= 0) return 't-style';
+  if (DATA.solo.indexOf(b) >= 0) return 't-solo';
+  return 't-camp';
+}
+function posText(p) { return p === '前' ? '前台' : (p === '后' ? '后台' : '前后台'); }
+
+function buildFilters() {
+  const list = DATA.modes[mode];
+  const costs = uniq(list.map(function(r){ return r.cost; })).sort(function(a,b){ return parseInt(a)-parseInt(b); });
+  const poss = uniq(list.map(function(r){ return r.pos; }));
+  const tags = uniq(list.map(function(r){ return r.tag.split(',').map(function(x){return x.trim();}); }).flat());
+  const bonds = uniq(list.map(function(r){ return r.bonds.split(',').map(function(x){return x.trim();}); }).flat())
+    .sort(function(a,b){ return a.localeCompare(b,'zh-CN'); });
+
+  function make(host, values, arr, labelFn) {
+    document.getElementById(host).innerHTML = values.map(function(v){
+      return '<button class="chip' + (arr.indexOf(v)>=0?' on':'') + '" data-v="' + esc(v) + '">' + (labelFn?labelFn(v):esc(v)) + '</button>';
+    }).join('');
+  }
+  make('fCost', costs, selCost, function(v){ return v + '费'; });
+  make('fPos', poss, selPos, posText);
+  make('fTag', tags, selTag);
+  make('fBond', bonds, selBond);
+}
+
+function bindChips(host, arr) {
+  document.getElementById(host).addEventListener('click', function(e){
+    const b = e.target.closest('.chip'); if (!b) return;
+    const v = b.getAttribute('data-v');
+    const i = arr.indexOf(v);
+    if (i >= 0) arr.splice(i,1); else arr.push(v);
+    render();
+  });
+}
+
+function render() {
+  buildFilters();
+  const list = DATA.modes[mode];
+  const shown = list.filter(function(r){
+    const tags = r.tag.split(',').map(function(x){return x.trim();});
+    const bonds = r.bonds.split(',').map(function(x){return x.trim();});
+    if (selCost.length && selCost.indexOf(r.cost) < 0) return false;
+    if (selPos.length && selPos.indexOf(r.pos) < 0) return false;
+    if (selTag.length && !selTag.some(function(x){ return tags.indexOf(x)>=0; })) return false;
+    if (selBond.length && !selBond.some(function(x){ return bonds.indexOf(x)>=0; })) return false;
+    if (kw && (r.name + ' ' + r.bonds + ' ' + r.tag).toLowerCase().indexOf(kw) < 0) return false;
+    return true;
+  });
+  document.getElementById('meta').textContent = '共 ' + list.length + ' 名角色，当前显示 ' + shown.length + ' 名。';
+  const grid = document.getElementById('grid');
+  if (!shown.length) { grid.innerHTML = '<div class="empty">没有符合条件的角色</div>'; return; }
+  grid.innerHTML = shown.map(function(r){
+    const tags = r.tag.split(',').map(function(x){return x.trim();});
+    const bonds = r.bonds.split(',').map(function(x){return x.trim();});
+    return '<div class="card">' +
+      '<div class="top"><div class="face">' + esc(r.name.slice(0,1)) + '</div>' +
+        '<div><div class="nm">' + esc(r.name) + '</div><div class="ver">实装 ' + esc(r.ver) + '</div></div>' +
+        '<div class="cost"><div class="n">' + esc(r.cost) + '</div><div class="u">费用</div></div></div>' +
+      '<div class="line"><span class="tag t-pos">' + posText(r.pos) + '</span>' +
+        tags.map(function(t){ return '<span class="tag t-role">' + esc(t) + '</span>'; }).join('') +
+        (r.expert === '是' ? '<span class="tag t-expert">专家顾问</span>' : '') + '</div>' +
+      '<div class="line">' + bonds.map(function(b){ return '<span class="tag ' + bondClass(b) + '">' + esc(b) + '</span>'; }).join('') + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+document.getElementById('modeSeg').addEventListener('click', function(e){
+  const b = e.target.closest('button'); if (!b) return;
+  mode = b.getAttribute('data-m');
+  selCost = []; selPos = []; selTag = []; selBond = [];
+  [].forEach.call(this.querySelectorAll('button'), function(x){ x.classList.toggle('on', x === b); });
+  render();
+});
+document.getElementById('search').addEventListener('input', function(e){ kw = e.target.value.trim().toLowerCase(); render(); });
+document.getElementById('clearBtn').onclick = function(){
+  selCost = []; selPos = []; selTag = []; selBond = []; kw = '';
+  document.getElementById('search').value = '';
+  render();
+};
+bindChips('fCost', selCost); bindChips('fPos', selPos); bindChips('fTag', selTag); bindChips('fBond', selBond);
+document.getElementById('fetchTime').textContent = new Date(DATA.fetchedAt).toLocaleString('zh-CN');
+render();
+</script>
+</body>
+</html>
