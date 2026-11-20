@@ -41,10 +41,6 @@ const html = `<!DOCTYPE html>
   .seg{display:inline-flex;background:#f3f1fb;border-radius:9px;padding:3px}
   .seg button{border:0;background:transparent;color:var(--soft);cursor:pointer;padding:6px 13px;border-radius:7px;font-size:12px;font-weight:600}
   .seg button.on{background:#fff;color:var(--primary);box-shadow:0 1px 5px rgba(88,66,160,.15)}
-  .gembox{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 12px;box-shadow:var(--shadow)}
-  .gembox .g{font-size:18px}
-  .gembox .num{font-size:17px;font-weight:800;color:var(--gem);min-width:24px;text-align:center;cursor:pointer;border-bottom:1px dashed #c4b5fd}
-  .gembox .lab{font-size:11px;color:var(--faint)}
   .btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 13px;border-radius:9px;cursor:pointer;font-size:12px;font-weight:600;transition:.15s;white-space:nowrap}
   .btn:hover{border-color:var(--primary2);color:var(--primary);background:var(--softbg)}
   .btn.pri{background:var(--primary);color:#fff;border-color:var(--primary)}
@@ -130,6 +126,8 @@ const html = `<!DOCTYPE html>
   .slot .rm{position:absolute;top:5px;right:6px;border:0;background:transparent;color:#c9c3e4;cursor:pointer;font-size:15px;line-height:1}
   .slot .rm:hover{color:var(--danger)}
   .slot .posbadge{position:absolute;top:5px;left:6px;font-size:8.5px;color:var(--faint);background:#f3f1fb;padding:1px 5px;border-radius:4px}
+  .slot .delpos{position:absolute;bottom:4px;left:5px;border:0;background:#fee2e2;color:var(--danger);font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;cursor:pointer;z-index:2}
+  .slot .delpos:hover{background:var(--danger);color:#fff}
   .slot.filled{cursor:grab}
   .slot.filled:active{cursor:grabbing}
   .slot.dragover{border-color:var(--primary)!important;background:var(--softbg)!important;box-shadow:0 0 0 3px #e6dcff!important}
@@ -188,15 +186,12 @@ const html = `<!DOCTYPE html>
     <h1>货币战争 · 阵容选择器</h1>
     <div class="seg" id="seasonSeg"><button data-s="入画奇航" class="on">入画奇航</button><button data-s="零和博弈">零和博弈</button></div>
     <div class="spacer"></div>
-    <div class="gembox">
-      <span class="g">💎</span><span class="num" id="gemNum" title="点击修改宝石数量">15</span><span class="lab">宝石</span>
-    </div>
     <div class="addwrap">
       <button class="btn pri" id="addSlotBtn">＋ 添加放置位</button>
       <div class="addpanel" id="addPanel">
         <h4>添加放置位</h4>
-        <p>每增加一个位置消耗 3 宝石</p>
-        <div class="op"><button class="btn" data-add="front">前排 +1</button><button class="btn" data-add="back">后排 +1</button></div>
+        <p>只能在后排添加，添加的位置可删除</p>
+        <div class="op"><button class="btn" data-add="back">后排 +1</button></div>
         <div style="font-size:10px;color:var(--faint)" id="slotLimit"></div>
       </div>
     </div>
@@ -241,7 +236,7 @@ const html = `<!DOCTYPE html>
   <div class="src">
     数据来源：<a href="https://wiki.biligame.com/sr/?curid=25489" target="_blank">BWiki 角色一览（货币）</a> ·
     <a href="https://wiki.biligame.com/sr/%E7%BE%81%E7%BB%8A%E4%B8%80%E8%A7%88" target="_blank">羁绊一览</a>
-    · 档位由激活线/满级线推算，实际效果以游戏内为准。阵容与宝石自动保存在本地。
+    · 档位由激活线/满级线推算，实际效果以游戏内为准。阵容与放置位自动保存在本地。
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -253,8 +248,8 @@ const html = `<!DOCTYPE html>
 <script>
 const DATA = __PAYLOAD__;
 const KEY = 'starrail_selector_v1';
-const GEM_COST = 3;
-const LIMIT = { front: 6, back: 12 };
+const BASE = { front: 4, back: 6 };   // 初始位置数，超出部分为可扩展位
+const LIMIT = { back: 12 };           // 后排放置位上限
 
 function load() {
   try {
@@ -264,7 +259,7 @@ function load() {
   return null;
 }
 let st = load() || {
-  season: '入画奇航', gems: 15,
+  season: '入画奇航',
   front: [null, null, null, null],
   back: [null, null, null, null, null, null]
 };
@@ -376,13 +371,17 @@ function renderSlots() {
     let html = '';
     st[row].forEach(function(n, i){
       const on = activeSlot && activeSlot.row === row && activeSlot.idx === i;
+      const extra = i >= BASE[row]; // 超出初始数量的为可扩展位
+      const delBtn = '<button class="delpos" data-del="' + i + '" data-row="' + row + '" title="删除此放置位">⊖ 删位</button>';
       if (!n) {
         html += '<div class="slot' + (on ? ' target' : '') + '" data-row="' + row + '" data-idx="' + i + '">' +
+          (extra ? delBtn : '') +
           '<div class="plus">＋</div><div class="ph">空位 ' + (i + 1) + '</div></div>';
       } else {
         const c = charByName(n);
         const bl = bondList(c);
         html += '<div class="slot filled f' + costTier(c ? c.cost : 1) + (n.indexOf('阿哈') >= 0 ? ' ah' : '') + '" draggable="true" data-row="' + row + '" data-idx="' + i + '" data-name="' + esc(n) + '" title="拖动可换排/换位；点右上角 × 移除">' +
+          (extra ? delBtn : '') +
           '<button class="rm" data-rm="' + i + '" data-row="' + row + '">×</button>' +
           '<span class="posbadge">' + esc(c ? c.pos : '') + '</span>' +
           '<div class="avatar">' + esc(n.slice(0, 1)) + '</div>' +
@@ -396,9 +395,8 @@ function renderSlots() {
     host.style.gridTemplateColumns = 'repeat(auto-fit,minmax(' + (row === 'front' ? '128px' : '118px') + ',1fr))';
     document.getElementById(row + 'Pill').textContent = st[row].length + ' 位';
   });
-  document.getElementById('gemNum').textContent = st.gems;
   const limit = document.getElementById('slotLimit');
-  if (limit) limit.textContent = '当前上限：前排 ' + LIMIT.front + ' / 后排 ' + LIMIT.back;
+  if (limit) limit.textContent = '当前后排 ' + st.back.length + ' / 上限 ' + LIMIT.back;
 }
 
 // 费用→档位：多费用角色（如 "4, 5, 7"）取最低档，钳制到 1-5
@@ -592,27 +590,30 @@ rosterHost.addEventListener('click', function(e){
   document.getElementById(id).addEventListener('change', renderRoster);
 });
 
-// 宝石
+// 添加放置位（仅后排）
 const addPanel = document.getElementById('addPanel');
 document.getElementById('addSlotBtn').onclick = function(e){ e.stopPropagation(); addPanel.classList.toggle('show'); renderSlots(); };
 document.addEventListener('click', function(e){ if (!addPanel.contains(e.target) && e.target.id !== 'addSlotBtn') addPanel.classList.remove('show'); });
 addPanel.addEventListener('click', function(e){
   const b = e.target.closest('[data-add]'); if (!b) return;
-  const row = b.getAttribute('data-add');
-  if (st.gems < GEM_COST) { toast('宝石不足，需要 ' + GEM_COST + ' 颗'); return; }
-  if (st[row].length >= LIMIT[row]) { toast(row === 'front' ? '前排已达上限 ' + LIMIT.front : '后排已达上限 ' + LIMIT.back); return; }
-  st.gems -= GEM_COST;
-  st[row].push(null);
+  if (st.back.length >= LIMIT.back) { toast('后排已达上限 ' + LIMIT.back); return; }
+  st.back.push(null);
   save(); renderSlots();
-  toast('已添加 1 个' + (row === 'front' ? '前排' : '后排') + '位置，消耗 ' + GEM_COST + ' 宝石');
+  toast('已添加 1 个后排位置，当前 ' + st.back.length + ' 位');
 });
-document.getElementById('gemNum').onclick = function(){
-  const v = prompt('设置宝石数量：', st.gems);
-  if (v === null) return;
-  const n = parseInt(v, 10);
-  if (isNaN(n) || n < 0) { toast('请输入非负整数'); return; }
-  st.gems = n; save(); renderSlots();
-};
+
+// 删除扩展放置位：捕获阶段拦截，避免触发槽位点击/拖拽
+document.addEventListener('click', function(e){
+  const d = e.target.closest('.delpos'); if (!d) return;
+  e.stopPropagation(); e.preventDefault();
+  const row = d.getAttribute('data-row'), idx = +d.getAttribute('data-del');
+  const had = !!st[row][idx];
+  st[row].splice(idx, 1);
+  activeSlot = null; previewName = null;
+  bondTip.classList.remove('show');
+  save(); renderAll();
+  toast(had ? '已删除放置位，角色已移回角色库' : '已删除该放置位');
+}, true);
 
 // 羁绊内容提示框
 const bondTip = document.getElementById('bondTip');
@@ -652,7 +653,7 @@ bondListHost.addEventListener('mouseover', function(e){
 bondListHost.addEventListener('mouseleave', function(){ bondTip.classList.remove('show'); });
 
 document.getElementById('resetBtn').onclick = function(){
-  if (!confirm('清空当前阵容的 10 个位置？宝石和已扩展的位置保留。')) return;
+  if (!confirm('清空当前阵容的所有角色？已添加的放置位会保留。')) return;
   st.front = st.front.map(function(){ return null; });
   st.back = st.back.map(function(){ return null; });
   activeSlot = null; previewName = null;
