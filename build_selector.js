@@ -70,10 +70,14 @@ const html = `<!DOCTYPE html>
   .bondlist{overflow-y:auto;padding:6px 10px 12px;flex:1}
   .bondlist::-webkit-scrollbar{width:6px}
   .bondlist::-webkit-scrollbar-thumb{background:#ddd8ef;border-radius:6px}
-  .bond{display:flex;align-items:center;gap:8px;padding:7px 6px;border-bottom:1px dashed #f0edf8;border-radius:7px;cursor:help;transition:background .12s}
+  .bond{display:flex;align-items:center;gap:8px;padding:7px 6px;border-bottom:1px dashed #f0edf8;border-radius:7px;cursor:pointer;transition:background .12s}
   .bond:hover{background:#f4f1fd}
   .bond.active{background:linear-gradient(90deg,#ecfdf5,#f6fefb);border-left:3px solid var(--ok);padding-left:3px}
   .bond.active:hover{background:linear-gradient(90deg,#d8f7ea,#eefdf6)}
+  .bond.sel,.bond.sel:hover{background:linear-gradient(90deg,#f1ebff,#faf8ff);box-shadow:inset 3px 0 var(--primary);padding-left:6px}
+  .bond.sel.active,.bond.sel.active:hover{background:linear-gradient(90deg,#e3f5ec,#f2fbf6);box-shadow:inset 3px 0 var(--primary)}
+  .bond .selmark{display:none;font-size:10px;color:var(--primary);font-weight:700;margin-left:2px}
+  .bond.sel .selmark{display:inline}
   .bond .bn{font-size:11.5px;font-weight:600;width:66px;flex:0 0 66px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .bond.active .bn{color:#047857}
   .tiers{display:flex;gap:3px;flex:1}
@@ -325,11 +329,11 @@ function renderBonds() {
       if (info && (cur[b] || 0) < info.min && pv[b] >= info.min) will.push(b);
     });
   }
-  const bl = bonds().filter(function(b){ return (cur[b.name] || 0) > 0 || (pv[b.name] || 0) > 0; });
+  const selBond = document.getElementById('fBond').value;
+  const bl = bonds().slice();
   bl.sort(function(a, b){
-    const aa = (cur[a.name] || 0) >= a.min ? 2 : (cur[a.name] || 0) === a.min - 1 ? 1 : 0;
-    const bb = (cur[b.name] || 0) >= b.min ? 2 : (cur[b.name] || 0) === b.min - 1 ? 1 : 0;
-    return bb - aa || (pv[b.name] || 0) - (pv[a.name] || 0);
+    const rank = function(x){ const c = cur[x.name] || 0; return c >= x.min ? 3 : (c > 0 ? 2 : 0); };
+    return rank(b) - rank(a) || (pv[b.name] || 0) - (pv[a.name] || 0);
   });
   const cats = ['阵营羁绊', '流派羁绊', '独立羁绊', '特殊羁绊'];
   let html = '';
@@ -341,8 +345,9 @@ function renderBonds() {
       const c0 = cur[b.name] || 0, c1 = pv[b.name] || 0;
       const tiers = tiersOf(b);
       const active = c0 >= b.min;
-      html += '<div class="bond' + (active ? ' active' : '') + (will.indexOf(b.name) >= 0 ? ' will' : '') + '" data-bond="' + esc(b.name) + '">' +
-        '<span class="bn" title="' + esc(b.name) + '">' + esc(b.name) + '</span><div class="tiers">';
+      const selected = selBond === b.name;
+      html += '<div class="bond' + (active ? ' active' : '') + (will.indexOf(b.name) >= 0 ? ' will' : '') + (selected ? ' sel' : '') + '" data-bond="' + esc(b.name) + '">' +
+        '<span class="bn" title="' + esc(b.name) + '">' + esc(b.name) + '<span class="selmark">◀</span></span><div class="tiers">';
       tiers.forEach(function(t){
         let cls = 'tier';
         if (c0 >= t) cls += ' on';
@@ -352,7 +357,7 @@ function renderBonds() {
       html += '</div><span class="cnt">' + c0 + (previewName && c1 !== c0 ? '→' + c1 : '') + '</span></div>';
     });
   });
-  document.getElementById('bondList').innerHTML = html || '<div style="padding:16px;text-align:center;color:var(--faint);font-size:11px">上阵角色后显示羁绊</div>';
+  document.getElementById('bondList').innerHTML = html || '<div style="padding:16px;text-align:center;color:var(--faint);font-size:11px">暂无羁绊数据</div>';
   document.getElementById('bondCount').textContent = bl.length + ' 个羁绊';
 
   const hint = document.getElementById('previewHint');
@@ -589,8 +594,9 @@ rosterHost.addEventListener('click', function(e){
 });
 
 ['roleSearch', 'fCost', 'fPos', 'fBond'].forEach(function(id){
-  document.getElementById(id).addEventListener('input', renderRoster);
-  document.getElementById(id).addEventListener('change', renderRoster);
+  const handler = function(){ renderRoster(); if (id === 'fBond') renderBonds(); };
+  document.getElementById(id).addEventListener('input', handler);
+  document.getElementById(id).addEventListener('change', handler);
 });
 
 // 添加放置位（仅后排）
@@ -654,6 +660,18 @@ bondListHost.addEventListener('mouseover', function(e){
   if (row) showBondTip(row.getAttribute('data-bond'), row);
 });
 bondListHost.addEventListener('mouseleave', function(){ bondTip.classList.remove('show'); });
+
+// 点击羁绊 → 右侧角色库筛选该羁绊；再点一次取消
+bondListHost.addEventListener('click', function(e){
+  const row = e.target.closest('[data-bond]'); if (!row) return;
+  const name = row.getAttribute('data-bond');
+  const f = document.getElementById('fBond');
+  if (f.value === name) f.value = ''; else f.value = name;
+  bondTip.classList.remove('show');
+  renderBonds(); renderRoster();
+  const list = document.getElementById('roster'); if (list) list.scrollTop = 0;
+  toast(f.value ? '右侧已筛选羁绊：' + name : '已取消羁绊筛选');
+});
 
 document.getElementById('resetBtn').onclick = function(){
   if (!confirm('清空当前阵容的所有角色？已添加的放置位会保留。')) return;
