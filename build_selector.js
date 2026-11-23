@@ -195,6 +195,9 @@ const html = `<!DOCTYPE html>
         <div style="font-size:10px;color:var(--faint)" id="slotLimit"></div>
       </div>
     </div>
+    <button class="btn" id="exportBtn">导出 JSON</button>
+    <button class="btn" id="importBtn">导入 JSON</button>
+    <input type="file" id="importFile" accept=".json,application/json" style="display:none">
     <button class="btn danger" id="resetBtn">清空阵容</button>
   </div>
 
@@ -660,11 +663,58 @@ document.getElementById('resetBtn').onclick = function(){
   save(); renderAll();
 };
 
+// 导出阵容为 JSON 文件
+document.getElementById('exportBtn').onclick = function(){
+  const data = JSON.stringify(st, null, 2);
+  const blob = new Blob([data], {type:'application/json;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '货币战争阵容_' + st.season + '_' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  toast('阵容已导出为 JSON');
+};
+
+// 从 JSON 文件导入阵容
+const importFile = document.getElementById('importFile');
+document.getElementById('importBtn').onclick = function(){ importFile.click(); };
+importFile.onchange = function(){
+  const f = importFile.files && importFile.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = function(){
+    let d;
+    try { d = JSON.parse(reader.result); }
+    catch (e) { toast('JSON 格式错误，导入失败'); importFile.value=''; return; }
+    if (!d || !Array.isArray(d.front) || !Array.isArray(d.back)) {
+      toast('文件缺少 front / back 阵容数据'); importFile.value=''; return;
+    }
+    const clean = function(arr, min, max){
+      const out = arr.slice(0, max).map(function(x){ return typeof x === 'string' ? x : null; });
+      while (out.length < min) out.push(null);
+      return out;
+    };
+    st.front = clean(d.front, BASE.front, LIMIT.back);
+    st.back = clean(d.back, BASE.back, LIMIT.back);
+    if (d.season === '入画奇航' || d.season === '零和博弈') st.season = d.season;
+    activeSlot = null; previewName = null;
+    document.getElementById('bondTip').classList.remove('show');
+    [].forEach.call(document.querySelectorAll('#seasonSeg button'), function(x){
+      x.classList.toggle('on', x.getAttribute('data-s') === st.season);
+    });
+    save(); initFilters(); renderAll();
+    toast('已导入阵容（' + st.season + '）');
+    importFile.value='';
+  };
+  reader.readAsText(f, 'utf-8');
+};
+
 initFilters();
 renderAll();
 </script>
 </body>
 </html>`;
 
-fs.writeFileSync('selector.html', html.replace('__PAYLOAD__', payload), 'utf8');
-console.log('生成 selector.html:', fs.statSync('selector.html').size, 'bytes');
+fs.writeFileSync('index.html', html.replace('__PAYLOAD__', payload), 'utf8');
+console.log('生成 index.html:', fs.statSync('index.html').size, 'bytes');
