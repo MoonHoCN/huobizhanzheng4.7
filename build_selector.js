@@ -330,7 +330,7 @@ function renderBonds() {
     });
   }
   const selBond = document.getElementById('fBond').value;
-  const bl = bonds().slice();
+  const bl = bonds().filter(function(b){ return (cur[b.name] || 0) > 0 || (pv[b.name] || 0) > 0; });
   bl.sort(function(a, b){
     const rank = function(x){ const c = cur[x.name] || 0; return c >= x.min ? 3 : (c > 0 ? 2 : 0); };
     return rank(b) - rank(a) || (pv[b.name] || 0) - (pv[a.name] || 0);
@@ -357,7 +357,7 @@ function renderBonds() {
       html += '</div><span class="cnt">' + c0 + (previewName && c1 !== c0 ? '→' + c1 : '') + '</span></div>';
     });
   });
-  document.getElementById('bondList').innerHTML = html || '<div style="padding:16px;text-align:center;color:var(--faint);font-size:11px">暂无羁绊数据</div>';
+  document.getElementById('bondList').innerHTML = html || '<div style="padding:16px;text-align:center;color:var(--faint);font-size:11px">上阵角色后显示羁绊</div>';
   document.getElementById('bondCount').textContent = bl.length + ' 个羁绊';
 
   const hint = document.getElementById('previewHint');
